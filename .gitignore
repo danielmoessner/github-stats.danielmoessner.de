@@ -1,0 +1,6 @@
+*.csv
+*.txt
+*.zip
+__pycache__
+.venv
+launch.json
