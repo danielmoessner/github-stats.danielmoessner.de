@@ -2,7 +2,7 @@
 
 a simple cli tool to generate stats about git activity
 
-# installation
+## installation
 
 you only need to have python 3 installed
 
