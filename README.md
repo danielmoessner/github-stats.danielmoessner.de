@@ -14,4 +14,5 @@ you only need to have python 3 installed
 ## further development
 
 more ways to visalize the data are planned
+
 ideas of how to improve the data collection and what to collect are welcome
