@@ -182,8 +182,7 @@ def write_bars_to_file(bars: list[str], filename: str):
 def main():
     p = argparse.ArgumentParser(description="Shows git commit count bars.")
     p.add_argument("-i", "--input", dest="file", action="store", type=str, help="file with the commits data")
-    p.add_argument("-a", "--author", action="store", dest="authors",
-                   nargs="*",
+    p.add_argument("-a", "--author", action="append", dest="authors",
                    type=str, required=False, default=[],
                    help="filter by author github names")
     p.add_argument("-o", "--output", dest="output", action="store", type=str, default="bars.txt",)
@@ -195,6 +194,8 @@ def main():
     sys.stdout.write(f"=> found {len(authors)} authors\n")
     for author, count in authors.items():
         sys.stdout.write(f"{author}: {count}\n")
+
+    print(args.authors)
 
     commits = filter_by_authors(commits, args.authors)
 
