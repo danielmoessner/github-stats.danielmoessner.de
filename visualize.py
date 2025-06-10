@@ -116,7 +116,7 @@ def calculate_scores(items: OrderedDict[datetime.date, Day]):
 
 def build_bars(groups: dict[str, Group], stddev_range: tuple[float, float, float], block=u"\u2580", width=50) -> list[str]:
     bars = []
-    _, lower, upper = stddev_range
+    _, lower, upper, _ = stddev_range
     for name in sorted(groups.keys()):
         group = groups[name]
         bar = ""
@@ -159,24 +159,35 @@ def group_by_week(commits: list[Commit]) -> dict[str, Group]:
     return groups
 
 
-def get_stddev_range(groups: dict[str, Group]) -> tuple[float, float, float]:
+def get_stats(groups: dict[str, Group]) -> tuple[float, float, float]:
     changes = list_map(groups.values(), lambda g: g.change)
     if not changes:
         return None, None, None
-    mean = round(statistics.mean(changes))
+    median = round(statistics.median(changes))
+    avg = round(statistics.mean(changes))
     stddev = round(statistics.stdev(changes)) if len(changes) > 1 else 0
-    lower = max(round(mean - stddev), 0)
-    upper = round(mean + stddev)
+    lower = max(round(avg - stddev), 0)
+    upper = round(avg + stddev)
     sys.stdout.write(f"\n=> calculated the stddev\n")
-    sys.stdout.write(f"mean: {mean}, lower: {lower}, upper: {upper}\n")
-    return mean, lower, upper
+    sys.stdout.write(f"avg: {avg}, lower: {lower}, upper: {upper}, median: {median}\n")
+    return avg, lower, upper, median
 
 
-def write_bars_to_file(bars: list[str], filename: str):
+def write_results_to_file(bars: list[str], stats: list[str], authors: list[str], repos: list[str], filename: str):
     with open(filename, 'w') as f:
+        f.write(f"repos: {', '.join(repos)}\n")
+        f.write(f"authors: {', '.join(authors)}\n\n")
         for bar in bars:
             f.write(bar)
-    sys.stdout.write(f"\n=> wrote bars to {filename}\n")
+        avg, lower, upper, median = stats
+        f.write(f"\navg: {avg}, lower: {lower}, upper: {upper}, median: {median}\n")
+    sys.stdout.write(f"\n=> wrote results to {filename}\n")
+
+
+def get_repos(commits: list[Commit]) -> list[str]:
+    """Get a list of unique repositories from the commits."""
+    repos = set(commit.repository for commit in commits)
+    return sorted(repos)
 
 
 def main():
@@ -195,15 +206,14 @@ def main():
     for author, count in authors.items():
         sys.stdout.write(f"{author}: {count}\n")
 
-    print(args.authors)
-
     commits = filter_by_authors(commits, args.authors)
 
     weeks = group_by_week(commits)
-    mean, lower, upper = get_stddev_range(weeks)
+    stats = get_stats(weeks)
+    repos = get_repos(commits)
     
-    bars = build_bars(weeks, (mean, lower, upper))
-    write_bars_to_file(bars, args.output)
+    bars = build_bars(weeks, stats)
+    write_results_to_file(bars, stats, args.authors, repos, args.output)
 
 
 if __name__ == "__main__":
