@@ -52,7 +52,7 @@ def get_commits(repository_path: str):
     repo = repository_path.split("/")[-1]
     sys.stdout.write(f"collecting the commits of {repo}\n")
     
-    args = ["git", "-C", repository_path, "log", "--pretty=format:%H|%at|%an", "--reverse"]
+    args = ["git", "-C", repository_path, "log", "--no-merges", "--pretty=format:%H|%at|%an", "--reverse"]
     # git log --pretty=format:"%H|%at|%an" --reverse
     # output format:
     # c6370125df4e999f365eda516831465eede59396|1636063992|danielmoessner
