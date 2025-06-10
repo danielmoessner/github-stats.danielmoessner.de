@@ -121,9 +121,10 @@ def build_bars(groups: dict[str, Group], stddev_range: tuple[float, float, float
         group = groups[name]
         bar = ""
         bar += (group.name)
-        bar += ("  ")
+        bar += " "
+        bar += ((6 - len(str(group.change))) * " ")
         bar += (str(group.change))
-        bar += ((5 - len(str(group.change))) * " ")
+        bar += " "
         bar += (block * int(group.get_score(lower, upper) * width))
         bar += ("\n")
         bars.append(bar)
@@ -176,11 +177,11 @@ def get_stats(groups: dict[str, Group]) -> tuple[float, float, float]:
 def write_results_to_file(bars: list[str], stats: list[str], authors: list[str], repos: list[str], filename: str):
     with open(filename, 'w') as f:
         f.write(f"repos: {', '.join(repos)}\n")
-        f.write(f"authors: {', '.join(authors)}\n\n")
+        f.write(f"authors: {', '.join(authors)}\n")
+        avg, lower, upper, median = stats
+        f.write(f"avg: {avg}, lower: {lower}, upper: {upper}, median: {median}\n\n")
         for bar in bars:
             f.write(bar)
-        avg, lower, upper, median = stats
-        f.write(f"\navg: {avg}, lower: {lower}, upper: {upper}, median: {median}\n")
     sys.stdout.write(f"\n=> wrote results to {filename}\n")
 
 
